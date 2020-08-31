@@ -1,0 +1,96 @@
+# The configuration file is a yaml file that follows yaml format
+#
+# The directory to your dataset
+# The data must be organized as /path/to/dataset/your_video_name/src/%010d.png, start from id=0
+# We use png to avoid error caused by jpeg compression
+data_dir: ../dataset
+#
+# Set the default value of parameters here
+# All the parameters here will be forwarded to each instance
+# You can add any variables here as long as you obey the basic yaml format.
+# So please use this part nicely to avoid hard-coding.
+# You could specify multiple values for each parameter through yaml list. The code will automatically sweep all parameters for you
+default:
+  # overwrite existing results or not
+  overwrite: False
+  # the video name you want to run. Can be a list or a single string
+  video_name: 
+  - trafficcam_9
+  # several configurations
+  max_object_size: 0.3
+  low_threshold: 0.3
+  high_threshold: 0.8
+  enforce_iframes: True
+  verbosity: info
+  simulate: False
+  hname: False
+  intersection_threshold: 1.0
+  low_results_path: None
+  high_results_path: None
+  high_resolution: -1
+  high_qp: -1
+  estimate_banwidth: False
+  low_images_path: None
+  tracker_length: 4
+  # the size of a video chunk
+  batch_size: 15
+  min_object_size: 0
+  boundary: 0.2
+  tracking_threshold: 0.3
+  suppression_threshold: 0.5
+  rpn_enlarge_ratio: 0
+  prune_score: 1.1
+  objfilter_iou: 0.3
+  # highconfig_name: 
+  size_obj: 1.1
+  # Turn on debug_mode to show what DDS sends in second iteration.
+  debug_mode: False
+  # The path to the ground truth. Will be automatically set in entrance.py
+  ground_truth: False
+  mode: emulation
+#
+# Specify each instance here
+# You could overwrite the default configuration for each instance
+# The configuration will be directly forwarded to the server
+# You could specify multiple values for each parameter through yaml list
+# We will automatically spawn multiple instances for you
+# E.g., if you specify qp = [1,2], resolution = [0.6,0.8]
+# You will get four instances with (qp,resolution)=(1,0.6),(1,0.8),(2,0.6),(2,0.8)
+instances:
+- method: gt
+  # quantization parameter, higher qp means worse quality.
+  low_qp: 24
+  # resolution is a number in (0, 1]. We will scale the width and the hight according to this factor.
+  low_resolution: 1.0
+- method: mpeg
+  low_qp:
+  - 26
+  - 28
+  - 36
+  - 51
+  - 48
+  - 45
+  low_resolution: 1.0
+- batch_size: 15
+  # the configuration for the Stream A (low) and Stream B (high)
+  high_qp: 26
+  high_resolution: 1.0
+  low_qp: # UPDATE: these values must also occur in mpeg method above
+  - 51
+  - 48
+  - 45
+  low_resolution: 1.0
+  method: dds
+  # Two regions will be treated as the same region if the intersection-over-union (IoU) is larger than this threshold
+  objfilter_iou: 0.3
+  # The score to prune out those low-objectness-score regions. Just to control the bandwidth
+  prune_score: 0.5
+  # Deprecated parameter
+  rpn_enlarge_ratio: # UPDATE: this is useless now, can be used as experiment id
+  - 0.601
+  # control the size of the object
+  size_obj: 0.01
+  # hname must be the ip:port of the server if in implementation mode
+  hname: False
+  # mode can be emulation or implementation. Emulation: trasmit the video through disk, Implementation: send the video through http protocol
+  mode: emulation
