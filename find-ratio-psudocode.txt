@@ -1,0 +1,27 @@
+SHRINK_MAX(25) shrinking ratio: [4%, 8%, ... , 96%, 100%] 
+ENLARGE_MAX(40) enlarge ratio (absolute): [0.005, 0.010, ..., 0.200]
+
+Let $[0, SHRINK_MAX - 1]$ represent shrinking ratios, and $[SHRINK_MAX, SHRINK_MAX + ENLARGE_MAX - 1]$ represent enlarge ratios.
+
+Let $A$ denote the regions that are
++ detected in high-resolution phase
++ not detected in low-resolution phase
+
+Goal: 
++ return a ratio assignment $best_ratio[r]$ for all $r$ in $A$, to maximize the number of regions in $A$ that can be detected
++ record f1 value (tp, fp, fn) and bandwidth usage in each iteration.
+
+
+Algorithm:
+
+ratio[r] = 0
+min_fn = inf
+
+for i in [0, SHRINK_MAX + ENLARGE_MAX - 1]:
+	Run DDS protocol on current ratios
+	Output $tp, fp, fn, bandwidth$ (client.py, line 302)
+	if fn < min_fn: best_ratio = ratio (client.py, line 298)
+	for $r$ in $A$:
+		if $r$ is not detected: ratio[r] += 1 (server.py, update_iter_ratio, line 137)
+
+return $best_ratio$
